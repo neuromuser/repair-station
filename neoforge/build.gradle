@@ -1,22 +1,23 @@
 plugins {
     id 'multiloader-loader'
-    id 'net.neoforged.moddev.legacyforge'
+    id 'net.neoforged.moddev'
 }
 
-legacyForge {
-    version = "${minecraft_version}-${forge_version}"
-
-    validateAccessTransformers = false
-
+neoForge {
+    version = neoforge_version
     def at = project(':common').file('src/main/resources/META-INF/accesstransformer.cfg')
     if (at.exists()) {
-        accessTransformers = [at.absolutePath]
+        accessTransformers.from(at.absolutePath)
     }
     parchment {
         minecraftVersion = parchment_minecraft
         mappingsVersion = parchment_version
     }
     runs {
+        configureEach {
+            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
+            ideName = "NeoForge ${it.name.capitalize()} (${project.path})"
+        }
         client {
             client()
         }
@@ -26,13 +27,8 @@ legacyForge {
         }
         server {
             server()
-            if (project.hasProperty("gameTest")) {
-                systemProperties.put("forge.gameTestServer", "true")
-                systemProperties.put("forge.enableGameTest", "true")
-            }
         }
     }
-
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
@@ -40,12 +36,4 @@ legacyForge {
     }
 }
 
-sourceSets.main.resources.srcDir 'src/generated/resources'
-
-dependencies {
-    compileOnly project(":common")
-}
-
-jar {
-    finalizedBy('reobfJar')
-}
+sourceSets.main.resources { srcDir 'src/generated/resources' }

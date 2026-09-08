@@ -19,7 +19,7 @@ public class FuelMatcher {
         for (FuelConfig fuel : config.fuels) {
             if (fuel.isTag) {
                 try {
-                    ResourceLocation tagId = new ResourceLocation(fuel.itemOrTag);
+                    ResourceLocation tagId = ResourceLocation.parse(fuel.itemOrTag);
                     TagKey<Item> tag = TagKey.create(Registries.ITEM, tagId);
                     if (stack.is(tag)) {
                         return fuel;

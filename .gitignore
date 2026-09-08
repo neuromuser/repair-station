@@ -2,6 +2,8 @@ build
 .gradle
 run
 run/
+runs
+runs/
 out
 *.iml
 *.ipr

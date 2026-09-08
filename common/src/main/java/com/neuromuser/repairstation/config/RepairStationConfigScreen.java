@@ -94,8 +94,8 @@ public class RepairStationConfigScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - (long) (amount * 12)));
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - (long) (scrollY * 12)));
         layoutRows();
         return true;
     }
@@ -163,7 +163,7 @@ public class RepairStationConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawString(this.font, Component.literal("Repair Station Config"), 14, 16, 0xFFFFFF);
 

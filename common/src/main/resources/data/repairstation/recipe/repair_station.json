@@ -17,6 +17,6 @@
     }
   },
   "result": {
-    "item": "repairstation:repair_station"
+    "id": "repairstation:repair_station"
   }
 }

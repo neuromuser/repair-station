@@ -4,6 +4,7 @@ import com.neuromuser.repairstation.config.FuelConfig;
 import com.neuromuser.repairstation.config.FuelMatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -195,9 +196,9 @@ public class RepairStationBlockEntity extends BlockEntity implements WorldlyCont
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        ContainerHelper.loadAllItems(tag, this.inventory);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.loadAdditional(tag, lookupProvider);
+        ContainerHelper.loadAllItems(tag, this.inventory, lookupProvider);
         this.repairTime = tag.getInt("RepairTime");
         this.fuelTime = tag.getInt("FuelTime");
         this.maxFuelTime = tag.getInt("MaxFuelTime");
@@ -207,9 +208,9 @@ public class RepairStationBlockEntity extends BlockEntity implements WorldlyCont
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        ContainerHelper.saveAllItems(tag, this.inventory);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.saveAdditional(tag, lookupProvider);
+        ContainerHelper.saveAllItems(tag, this.inventory, lookupProvider);
         tag.putInt("RepairTime", this.repairTime);
         tag.putInt("FuelTime", this.fuelTime);
         tag.putInt("MaxFuelTime", this.maxFuelTime);

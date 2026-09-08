@@ -22,16 +22,16 @@ public class RepairStationFabric implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
                 FabricConfigNetworking.sendToClient(handler.getPlayer(), server.isDedicatedServer()));
 
-        Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(RepairStation.MOD_ID, "repair_station"),
+        Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
                 RepairStation.REPAIR_STATION_BLOCK);
-        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(RepairStation.MOD_ID, "repair_station"),
+        Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
                 new BlockItem(RepairStation.REPAIR_STATION_BLOCK, new Item.Properties()));
         RepairStation.REPAIR_STATION_BLOCK_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
-                new ResourceLocation(RepairStation.MOD_ID, "repair_station"),
+                ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
                 BlockEntityType.Builder.of(
                         RepairStationBlockEntity::new, RepairStation.REPAIR_STATION_BLOCK).build(null));
         RepairStationBlockEntity.BLOCK_ENTITY_TYPE = RepairStation.REPAIR_STATION_BLOCK_ENTITY;
-        Registry.register(BuiltInRegistries.MENU, new ResourceLocation(RepairStation.MOD_ID, "repair_station"),
+        Registry.register(BuiltInRegistries.MENU, ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
                 RepairStation.REPAIR_STATION_SCREEN_HANDLER);
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(content ->

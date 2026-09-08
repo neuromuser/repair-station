@@ -11,7 +11,7 @@ public class RepairStation {
     public static final String MOD_ID = "repairstation";
 
     public static final Block REPAIR_STATION_BLOCK = new RepairStationBlock(
-        BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE).noOcclusion()
+        BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE).noOcclusion()
     );
 
     public static final MenuType<RepairStationScreenHandler> REPAIR_STATION_SCREEN_HANDLER =

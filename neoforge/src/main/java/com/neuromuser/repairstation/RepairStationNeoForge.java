@@ -1,25 +1,29 @@
 package com.neuromuser.repairstation;
 
 import com.neuromuser.repairstation.config.ConfigManager;
-import com.neuromuser.repairstation.config.ForgeConfigNetworking;
+import com.neuromuser.repairstation.config.NeoForgeConfigNetworking;
+import com.neuromuser.repairstation.config.RepairStationConfigScreen;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.RegisterGameTestsEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.DeferredRegister;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 @Mod(RepairStation.MOD_ID)
-public class RepairStationForge {
+public class RepairStationNeoForge {
     public static final DeferredRegister<net.minecraft.world.level.block.Block> BLOCKS =
             DeferredRegister.create(Registries.BLOCK, RepairStation.MOD_ID);
     public static final DeferredRegister<Item> ITEMS =
@@ -29,15 +33,12 @@ public class RepairStationForge {
     public static final DeferredRegister<net.minecraft.world.inventory.MenuType<?>> MENUS =
             DeferredRegister.create(Registries.MENU, RepairStation.MOD_ID);
 
-    public RepairStationForge() {
-        IEventBus modEventBus = net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus();
-
+    public RepairStationNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);
         MENUS.register(modEventBus);
         modEventBus.addListener(this::buildContents);
-        modEventBus.addListener(this::registerGameTests);
 
         BLOCKS.register("repair_station", () -> RepairStation.REPAIR_STATION_BLOCK);
         ITEMS.register("repair_station", () -> new BlockItem(RepairStation.REPAIR_STATION_BLOCK, new Item.Properties()));
@@ -51,15 +52,21 @@ public class RepairStationForge {
         MENUS.register("repair_station", () -> RepairStation.REPAIR_STATION_SCREEN_HANDLER);
 
         ConfigManager.load(FMLPaths.CONFIGDIR.get().resolve("repair-station.json"));
-        ForgeConfigNetworking.init();
+        NeoForgeConfigNetworking.init(modEventBus);
 
-        MinecraftForge.EVENT_BUS.register(this);
+        if (FMLEnvironment.dist.isClient()) {
+            modContainer.registerExtensionPoint(IConfigScreenFactory.class,
+                    (mc, parent) -> RepairStationConfigScreen.create(parent,
+                            FMLPaths.CONFIGDIR.get().resolve("repair-station.json")));
+        }
+
+        NeoForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            ForgeConfigNetworking.sendToPlayer(player);
+            NeoForgeConfigNetworking.sendToPlayer(player);
         }
     }
 
@@ -67,9 +74,5 @@ public class RepairStationForge {
         if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.accept(RepairStation.REPAIR_STATION_BLOCK);
         }
-    }
-
-    private void registerGameTests(RegisterGameTestsEvent event) {
-        event.register(RepairStationGameTests.class);
     }
 }

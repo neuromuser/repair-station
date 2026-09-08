@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class RepairStationScreen extends AbstractContainerScreen<RepairStationScreenHandler> {
     private static final ResourceLocation TEXTURE =
-            new ResourceLocation(RepairStation.MOD_ID, "textures/gui/repair_station.png");
+            ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "textures/gui/repair_station.png");
 
     public RepairStationScreen(RepairStationScreenHandler menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -34,7 +34,7 @@ public class RepairStationScreen extends AbstractContainerScreen<RepairStationSc
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
