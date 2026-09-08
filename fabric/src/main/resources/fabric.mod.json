@@ -1,0 +1,40 @@
+{
+    "schemaVersion": 1,
+    "id": "repairstation",
+    "version": "${version}",
+    "name": "${mod_name}",
+    "description": "${description}",
+    "authors": [
+        "${mod_author}"
+    ],
+    "contact": {
+        "sources": "https://github.com/putzwirk/repair-station"
+    },
+    "license": "${license}",
+    "icon": "assets/repairstation/icon.png",
+    "environment": "*",
+    "accessWidener": "repairstation.accesswidener",
+    "entrypoints": {
+        "main": [
+            "com.neuromuser.repairstation.RepairStationFabric"
+        ],
+        "client": [
+            "com.neuromuser.repairstation.RepairStationFabricClient"
+        ],
+        "modmenu": [
+            "com.neuromuser.repairstation.compat.ModMenuIntegration"
+        ],
+        "fabric-gametest": [
+            "com.neuromuser.repairstation.RepairStationFabricGameTest"
+        ]
+    },
+    "depends": {
+        "fabricloader": ">=0.14",
+        "fabric": "*",
+        "minecraft": "${minecraft_version}",
+        "java": ">=17"
+    },
+    "suggests": {
+        "modmenu": "*"
+    }
+}

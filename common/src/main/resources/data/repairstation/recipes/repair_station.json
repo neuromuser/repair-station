@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FsF",
+    "PPP",
+    "PPP"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:flint"
+    },
+    "s": {
+      "item": "minecraft:stone_slab"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "repairstation:repair_station"
+  }
+}

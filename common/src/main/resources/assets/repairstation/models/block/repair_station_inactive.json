@@ -1,0 +1,24 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "repairstation:block/repair_station_front",
+    "top_texture":    "repairstation:block/repair_station_top",
+    "bottom_texture": "repairstation:block/repair_station_bottom",
+    "front_texture":  "repairstation:block/repair_station_front",
+    "side_texture":   "repairstation:block/repair_station_side"
+  },
+  "elements": [
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "down":  { "texture": "#bottom_texture", "cullface": "down" },
+        "up":    { "texture": "#top_texture",    "cullface": "up" },
+        "north": { "texture": "#front_texture",  "cullface": "north" },
+        "south": { "texture": "#side_texture",   "cullface": "south" },
+        "west":  { "texture": "#side_texture",   "cullface": "west" },
+        "east":  { "texture": "#side_texture",   "cullface": "east" }
+      }
+    }
+  ]
+}
