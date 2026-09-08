@@ -1,6 +1,8 @@
 package com.neuromuser.repairstation;
 
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -18,24 +20,27 @@ public class RepairStationScreen extends AbstractContainerScreen<RepairStationSc
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack poseStack, float partialTick, int mouseX, int mouseY) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+        RenderSystem.setShaderTexture(0, TEXTURE);
+        GuiComponent.blit(poseStack, x, y, 0, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 
         if (menu.isRepairing()) {
             int fuelProgress = menu.getFuelProgress();
-            guiGraphics.blit(TEXTURE, x + 56, y + 36 + 12 - fuelProgress, 176, 12 - fuelProgress, 14, fuelProgress + 1);
+            GuiComponent.blit(poseStack, x + 56, y + 36 + 12 - fuelProgress, 0, 176.0f, 12.0f - fuelProgress, 14, fuelProgress + 1, 256, 256);
         }
 
         int repairProgress = menu.getRepairProgress();
-        guiGraphics.blit(TEXTURE, x + 79, y + 34, 176, 14, repairProgress + 1, 16);
+        GuiComponent.blit(poseStack, x + 79, y + 34, 0, 176.0f, 14.0f, repairProgress + 1, 16, 256, 256);
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(poseStack);
+        super.render(poseStack, mouseX, mouseY, partialTick);
+        if (this.hoveredSlot != null) {
+            this.renderTooltip(poseStack, this.hoveredSlot.getItem(), mouseX, mouseY);
+        }
     }
 }

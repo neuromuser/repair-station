@@ -24,7 +24,8 @@ public class RepairStationForgeClient {
                                 RepairStationConfigScreen.create(parent,
                                         FMLPaths.CONFIGDIR.get().resolve("repair-station.json"))));
                 MinecraftForge.EVENT_BUS.register(ClientForgeEvents.class);
-                RepairStationClient.init();
+                net.minecraft.client.gui.screens.MenuScreens.register(
+                        RepairStation.REPAIR_STATION_SCREEN_HANDLER, RepairStationScreen::new);
             });
         }
     }

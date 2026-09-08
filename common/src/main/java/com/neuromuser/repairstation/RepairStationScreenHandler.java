@@ -114,7 +114,7 @@ public class RepairStationScreenHandler extends AbstractContainerMenu {
             }
 
             if (originalStack.isEmpty()) {
-                slot.setByPlayer(ItemStack.EMPTY);
+                slot.set(ItemStack.EMPTY);
             } else {
                 slot.setChanged();
             }

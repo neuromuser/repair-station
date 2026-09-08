@@ -1,14 +1,13 @@
 package com.neuromuser.repairstation;
 
+import net.minecraft.core.NonNullList;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.TransientCraftingContainer;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -30,25 +29,23 @@ public class RepairStationGameTests {
             return;
         }
 
-        CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false,
-                helper.getLevel().registryAccess());
-
         CreativeModeTab functional = null;
-        for (CreativeModeTab tab : CreativeModeTabs.allTabs()) {
-            if (tab.getDisplayName().getString().equals("Functional Blocks")) {
+        for (CreativeModeTab tab : CreativeModeTab.TABS) {
+            if (tab.getDisplayName().getString().equals("Decoration Blocks")) {
                 functional = tab;
                 break;
             }
         }
         if (functional == null) {
-            helper.fail("the Functional Blocks creative tab was not found");
+            helper.fail("the Decoration Blocks creative tab was not found");
             return;
         }
 
-        boolean found = functional.getDisplayItems().stream()
-                .anyMatch(stack -> stack.is(station));
+        NonNullList<ItemStack> items = NonNullList.create();
+        functional.fillItemList(items);
+        boolean found = items.stream().anyMatch(stack -> stack.is(station));
         if (!found) {
-            helper.fail("repair_station item is missing from the Functional Blocks creative tab");
+            helper.fail("repair_station item is missing from the Decoration Blocks creative tab");
             return;
         }
         helper.succeed();
@@ -71,13 +68,13 @@ public class RepairStationGameTests {
         }
 
         CraftingRecipe recipe = found.get();
-        ItemStack anticipated = recipe.getResultItem(helper.getLevel().registryAccess());
+        ItemStack anticipated = recipe.getResultItem();
         if (!anticipated.is(station)) {
             helper.fail("recipe repairstation:repair_station resolves to " + anticipated + " instead of the repair station");
             return;
         }
 
-        TransientCraftingContainer container = new TransientCraftingContainer(dummyMenu(), 3, 3);
+        CraftingContainer container = new CraftingContainer(dummyMenu(), 3, 3);
         List<Ingredient> ingredients = recipe.getIngredients();
         for (int i = 0; i < container.getContainerSize() && i < ingredients.size(); i++) {
             ItemStack[] variants = ingredients.get(i).getItems();
@@ -90,7 +87,7 @@ public class RepairStationGameTests {
             return;
         }
 
-        ItemStack crafted = match.get().assemble(container, helper.getLevel().registryAccess());
+        ItemStack crafted = match.get().assemble(container);
         if (!crafted.is(station)) {
             helper.fail("crafting produced " + crafted + " instead of the repair station");
             return;

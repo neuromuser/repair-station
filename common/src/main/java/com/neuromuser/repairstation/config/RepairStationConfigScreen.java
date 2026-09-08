@@ -1,6 +1,9 @@
 package com.neuromuser.repairstation.config;
 
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -43,9 +46,8 @@ public class RepairStationConfigScreen extends Screen {
         this.rows.clear();
 
         if (serverControlled) {
-            this.addRenderableWidget(Button.builder(Component.literal("OK"),
-                            button -> this.minecraft.setScreen(parent))
-                    .bounds(this.width / 2 - 50, this.height / 2, 100, 20).build());
+            this.addRenderableWidget(new Button(this.width / 2 - 50, this.height / 2, 100, 20,
+                    Component.literal("OK"), button -> this.minecraft.setScreen(parent), Button.NO_TOOLTIP));
             return;
         }
 
@@ -59,15 +61,14 @@ public class RepairStationConfigScreen extends Screen {
 
         layoutRows();
 
-        this.addButton = Button.builder(Component.literal("Add"),
-                        button -> addNewFuel())
-                .bounds(COL_ITEM_X + 160, 0, 70, 18).build();
+        this.addButton = new Button(COL_ITEM_X + 160, 0, 70, 18,
+                Component.literal("Add"), button -> addNewFuel(), Button.NO_TOOLTIP);
         this.addRenderableWidget(addButton);
         layoutRows();
-        this.addRenderableWidget(Button.builder(Component.literal("Save"), button -> saveAndClose())
-                .bounds(this.width - 192, 12, 92, 20).build());
-        this.addRenderableWidget(Button.builder(Component.literal("Cancel"), button -> this.minecraft.setScreen(parent))
-                .bounds(this.width - 96, 12, 92, 20).build());
+        this.addRenderableWidget(new Button(this.width - 192, 12, 92, 20,
+                Component.literal("Save"), button -> saveAndClose(), Button.NO_TOOLTIP));
+        this.addRenderableWidget(new Button(this.width - 96, 12, 92, 20,
+                Component.literal("Cancel"), button -> this.minecraft.setScreen(parent), Button.NO_TOOLTIP));
     }
 
     private void layoutRows() {
@@ -81,12 +82,12 @@ public class RepairStationConfigScreen extends Screen {
         }
 
         if (newFuelField != null) {
-            newFuelField.setX(COL_ITEM_X);
-            newFuelField.setY(this.height - 40);
+            newFuelField.x = COL_ITEM_X;
+            newFuelField.y = this.height - 40;
         }
         if (addButton != null) {
-            addButton.setX(COL_ITEM_X + 160);
-            addButton.setY(this.height - 41);
+            addButton.x = COL_ITEM_X + 160;
+            addButton.y = this.height - 41;
         }
 
         maxScroll = Math.max(0, contentHeight - viewHeight);
@@ -162,38 +163,42 @@ public class RepairStationConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawString(this.font, Component.literal("Repair Station Config"), 14, 16, 0xFFFFFF);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(poseStack);
+        super.render(poseStack, mouseX, mouseY, partialTick);
+        GuiComponent.drawString(poseStack, this.font, Component.literal("Repair Station Config"), 14, 16, 0xFFFFFF);
 
         if (serverControlled) {
-            guiGraphics.drawCenteredString(this.font,
+            GuiComponent.drawCenteredString(poseStack, this.font,
                     Component.literal("This server controls the fuel configuration."),
                     this.width / 2, this.height / 2 - 20, 0xAAAAAA);
-            guiGraphics.drawCenteredString(this.font,
+            GuiComponent.drawCenteredString(poseStack, this.font,
                     Component.literal("Edit config/repair-station.json on the server."),
                     this.width / 2, this.height / 2 - 8, 0xAAAAAA);
             return;
         }
 
-        enableRowScissor(guiGraphics);
+        enableRowScissor();
         for (int i = 0; i < rows.size(); i++) {
             FuelRow row = rows.get(i);
             int y = 48 - scrollOffset + i * ROW_HEIGHT;
-            row.renderLabels(guiGraphics, y);
+            row.renderLabels(poseStack, y);
         }
-        guiGraphics.disableScissor();
+        RenderSystem.disableScissor();
 
-        guiGraphics.drawString(this.font, Component.literal("Add New Fuel"), COL_ITEM_X, this.height - 52, 0xAAAAAA);
+        GuiComponent.drawString(poseStack, this.font, Component.literal("Add New Fuel"), COL_ITEM_X, this.height - 52, 0xAAAAAA);
         if (newFuelField != null) {
-            guiGraphics.drawString(this.font, Component.literal("Save writes to config/repair-station.json"),
+            GuiComponent.drawString(poseStack, this.font, Component.literal("Save writes to config/repair-station.json"),
                     COL_ITEM_X, this.height - 16, 0x888888);
         }
     }
 
-    private void enableRowScissor(GuiGraphics guiGraphics) {
-        guiGraphics.enableScissor(0, 48, this.width, this.height - 56);
+    private void enableRowScissor() {
+        Window window = this.minecraft.getWindow();
+        double scale = window.getGuiScale();
+        int topPx = (int) Math.floor(48 * scale);
+        int bottomPx = (int) Math.ceil((this.height - 56) * scale);
+        RenderSystem.enableScissor(0, window.getHeight() - bottomPx, window.getWidth(), bottomPx - topPx);
     }
 
     private boolean isRowClick(double mouseY) {
@@ -206,10 +211,10 @@ public class RepairStationConfigScreen extends Screen {
         }
 
         @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            enableRowScissor(guiGraphics);
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-            guiGraphics.disableScissor();
+        public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+            enableRowScissor();
+            super.renderButton(poseStack, mouseX, mouseY, partialTick);
+            RenderSystem.disableScissor();
         }
 
         @Override
@@ -220,14 +225,14 @@ public class RepairStationConfigScreen extends Screen {
 
     private class ViewportButton extends Button {
         ViewportButton(int x, int y, int width, int height, Component message, OnPress onPress) {
-            super(x, y, width, height, message, onPress, Button.DEFAULT_NARRATION);
+            super(x, y, width, height, message, onPress, Button.NO_TOOLTIP);
         }
 
         @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            enableRowScissor(guiGraphics);
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-            guiGraphics.disableScissor();
+        public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+            enableRowScissor();
+            super.renderButton(poseStack, mouseX, mouseY, partialTick);
+            RenderSystem.disableScissor();
         }
 
         @Override
@@ -263,20 +268,20 @@ public class RepairStationConfigScreen extends Screen {
         }
 
         void layoutAt(int y) {
-            itemField.setX(COL_ITEM_X);
-            itemField.setY(y + 10);
-            durationField.setX(COL_DUR_X);
-            durationField.setY(y + 10);
-            productField.setX(COL_PROD_X);
-            productField.setY(y + 10);
-            removeButton.setX(RepairStationConfigScreen.this.width - 24);
-            removeButton.setY(y + 6);
+            itemField.x = COL_ITEM_X;
+            itemField.y = y + 10;
+            durationField.x = COL_DUR_X;
+            durationField.y = y + 10;
+            productField.x = COL_PROD_X;
+            productField.y = y + 10;
+            removeButton.x = RepairStationConfigScreen.this.width - 24;
+            removeButton.y = y + 6;
         }
 
-        void renderLabels(GuiGraphics guiGraphics, int y) {
-            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Item/Tag ID"), COL_ITEM_X, y, 0xAAAAAA);
-            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Duration (s)"), COL_DUR_X, y, 0xAAAAAA);
-            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Dura/5s"), COL_PROD_X, y, 0xAAAAAA);
+        void renderLabels(PoseStack poseStack, int y) {
+            GuiComponent.drawString(poseStack, RepairStationConfigScreen.this.font, Component.literal("Item/Tag ID"), COL_ITEM_X, y, 0xAAAAAA);
+            GuiComponent.drawString(poseStack, RepairStationConfigScreen.this.font, Component.literal("Duration (s)"), COL_DUR_X, y, 0xAAAAAA);
+            GuiComponent.drawString(poseStack, RepairStationConfigScreen.this.font, Component.literal("Dura/5s"), COL_PROD_X, y, 0xAAAAAA);
         }
     }
 }
