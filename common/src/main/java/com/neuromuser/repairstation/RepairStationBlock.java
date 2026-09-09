@@ -70,10 +70,21 @@ public class RepairStationBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!level.isClientSide()) {
+        if (!level.isClientSide) {
             player.openMenu(state.getMenuProvider(level, pos));
         }
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof RepairStationBlockEntity) {
+                ((RepairStationBlockEntity) blockEntity).dropInventory(level, pos);
+            }
+            super.onRemove(state, level, pos, newState, movedByPiston);
+        }
     }
 
     @Nullable

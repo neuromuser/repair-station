@@ -163,6 +163,7 @@ public class RepairStationConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawString(this.font, Component.literal("Repair Station Config"), 14, 16, 0xFFFFFFFF);
 
@@ -223,10 +224,9 @@ public class RepairStationConfigScreen extends Screen {
         }
 
         @Override
-        protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             enableRowScissor(guiGraphics);
-            this.renderDefaultSprite(guiGraphics);
-            this.renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
+            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
             guiGraphics.disableScissor();
         }
 

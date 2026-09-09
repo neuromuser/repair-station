@@ -1,12 +1,11 @@
 package com.neuromuser.repairstation;
 
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -27,24 +26,10 @@ import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class RepairStationGameTests {
 
-    public static void registerTestFunctions() {
-        registerTestFunction("repair_station_is_in_functional_blocks_tab",
-                RepairStationGameTests::repairStationIsInFunctionalBlocksTab);
-        registerTestFunction("repair_station_recipe_crafts_the_block",
-                RepairStationGameTests::repairStationRecipeCraftsTheBlock);
-    }
-
-    private static void registerTestFunction(String name, Consumer<GameTestHelper> function) {
-        Registry.register(BuiltInRegistries.TEST_FUNCTION,
-                ResourceKey.create(Registries.TEST_FUNCTION,
-                        Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, name)),
-                function);
-    }
-
+    @GameTest(template = "empty", timeoutTicks = 100)
     public static void repairStationIsInFunctionalBlocksTab(GameTestHelper helper) {
         Item station = RepairStation.REPAIR_STATION_BLOCK.asItem();
         if (station == Items.AIR) {
@@ -76,6 +61,7 @@ public class RepairStationGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "empty", timeoutTicks = 100)
     public static void repairStationRecipeCraftsTheBlock(GameTestHelper helper) {
         Item station = RepairStation.REPAIR_STATION_BLOCK.asItem();
         if (station == Items.AIR) {
@@ -83,7 +69,7 @@ public class RepairStationGameTests {
             return;
         }
 
-        Identifier recipeId = Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station");
+        ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station");
         ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, recipeId);
         RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
         Optional<RecipeHolder<?>> found = recipes.byKey(recipeKey);

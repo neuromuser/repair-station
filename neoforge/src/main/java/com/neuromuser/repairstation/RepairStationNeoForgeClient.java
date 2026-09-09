@@ -1,23 +1,18 @@
 package com.neuromuser.repairstation;
 
 import com.neuromuser.repairstation.config.ConfigManager;
-import com.neuromuser.repairstation.config.RepairStationConfigScreen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
-@EventBusSubscriber(modid = RepairStation.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = RepairStation.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class RepairStationNeoForgeClient {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            event.getContainer().registerExtensionPoint(IConfigScreenFactory.class, (mc, parent) ->
-                    RepairStationConfigScreen.create(parent, FMLPaths.CONFIGDIR.get().resolve("repair-station.json")));
             NeoForge.EVENT_BUS.register(ClientForgeEvents.class);
             RepairStationClient.init();
         });

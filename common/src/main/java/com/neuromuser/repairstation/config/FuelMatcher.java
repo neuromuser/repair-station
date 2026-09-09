@@ -2,7 +2,7 @@ package com.neuromuser.repairstation.config;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +19,7 @@ public class FuelMatcher {
         for (FuelConfig fuel : config.fuels) {
             if (fuel.isTag) {
                 try {
-                    Identifier tagId = Identifier.parse(fuel.itemOrTag);
+                    ResourceLocation tagId = ResourceLocation.parse(fuel.itemOrTag);
                     TagKey<Item> tag = TagKey.create(Registries.ITEM, tagId);
                     if (stack.is(tag)) {
                         return fuel;
@@ -29,7 +29,7 @@ public class FuelMatcher {
                 }
             } else {
                 try {
-                    Identifier itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                    ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
                     if (itemId.toString().equals(fuel.itemOrTag)) {
                         return fuel;
                     }

@@ -2,9 +2,10 @@ package com.neuromuser.repairstation;
 
 import com.neuromuser.repairstation.config.ConfigManager;
 import com.neuromuser.repairstation.config.NeoForgeConfigNetworking;
+import com.neuromuser.repairstation.config.RepairStationConfigScreen;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -14,7 +15,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -44,7 +47,7 @@ public class RepairStationNeoForge {
         ITEMS.register("repair_station", () -> new BlockItem(RepairStation.REPAIR_STATION_BLOCK, new Item.Properties()
                 .useBlockDescriptionPrefix()
                 .setId(ResourceKey.create(Registries.ITEM,
-                        Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station")))));
+                        ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station")))));
         BLOCK_ENTITIES.register("repair_station", () -> {
             BlockEntityType<RepairStationBlockEntity> type = new BlockEntityType<>(
                     RepairStationBlockEntity::new, Set.of(RepairStation.REPAIR_STATION_BLOCK));
@@ -56,6 +59,12 @@ public class RepairStationNeoForge {
 
         ConfigManager.load(FMLPaths.CONFIGDIR.get().resolve("repair-station.json"));
         NeoForgeConfigNetworking.init(modEventBus);
+
+        if (FMLEnvironment.dist.isClient()) {
+            modContainer.registerExtensionPoint(IConfigScreenFactory.class,
+                    (mc, parent) -> RepairStationConfigScreen.create(parent,
+                            FMLPaths.CONFIGDIR.get().resolve("repair-station.json")));
+        }
 
         NeoForge.EVENT_BUS.register(this);
     }
