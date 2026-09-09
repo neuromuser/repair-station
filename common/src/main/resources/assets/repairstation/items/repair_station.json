@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "repairstation:block/repair_station_inactive"
+  }
+}

@@ -1,18 +1,17 @@
 package com.neuromuser.repairstation;
 
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
-import net.minecraft.gametest.framework.GameTest;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
-public class RepairStationFabricGameTest implements FabricGameTest {
+public class RepairStationFabricGameTest {
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, timeoutTicks = 100)
-    public static void repairStationIsInFunctionalBlocksTab(GameTestHelper helper) {
+    @GameTest(maxTicks = 100)
+    public void repairStationIsInFunctionalBlocksTab(GameTestHelper helper) {
         RepairStationGameTests.repairStationIsInFunctionalBlocksTab(helper);
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, timeoutTicks = 100)
-    public static void repairStationRecipeCraftsTheBlock(GameTestHelper helper) {
+    @GameTest(maxTicks = 100)
+    public void repairStationRecipeCraftsTheBlock(GameTestHelper helper) {
         RepairStationGameTests.repairStationRecipeCraftsTheBlock(helper);
     }
 }

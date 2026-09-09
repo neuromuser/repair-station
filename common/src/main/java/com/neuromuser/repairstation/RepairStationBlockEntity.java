@@ -4,10 +4,8 @@ import com.neuromuser.repairstation.config.FuelConfig;
 import com.neuromuser.repairstation.config.FuelMatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -15,7 +13,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -25,6 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 public class RepairStationBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider {
@@ -83,7 +82,7 @@ public class RepairStationBlockEntity extends BlockEntity implements WorldlyCont
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, RepairStationBlockEntity blockEntity) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             ItemStack inputStack = blockEntity.inventory.get(0);
             ItemStack fuelStack = blockEntity.inventory.get(1);
             ItemStack outputStack = blockEntity.inventory.get(2);
@@ -196,36 +195,25 @@ public class RepairStationBlockEntity extends BlockEntity implements WorldlyCont
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        super.loadAdditional(tag, lookupProvider);
-        ContainerHelper.loadAllItems(tag, this.inventory, lookupProvider);
-        this.repairTime = tag.getInt("RepairTime");
-        this.fuelTime = tag.getInt("FuelTime");
-        this.maxFuelTime = tag.getInt("MaxFuelTime");
-        this.currentDurabilityPerCycle = tag.getInt("CurrentDurabilityPerCycle");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        ContainerHelper.loadAllItems(input, this.inventory);
+        this.repairTime = input.getIntOr("RepairTime", 0);
+        this.fuelTime = input.getIntOr("FuelTime", 0);
+        this.maxFuelTime = input.getIntOr("MaxFuelTime", 1600);
+        this.currentDurabilityPerCycle = input.getIntOr("CurrentDurabilityPerCycle", 5);
         this.wasActive = false;
         this.activeBufferTimer = 0;
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        super.saveAdditional(tag, lookupProvider);
-        ContainerHelper.saveAllItems(tag, this.inventory, lookupProvider);
-        tag.putInt("RepairTime", this.repairTime);
-        tag.putInt("FuelTime", this.fuelTime);
-        tag.putInt("MaxFuelTime", this.maxFuelTime);
-        tag.putInt("CurrentDurabilityPerCycle", this.currentDurabilityPerCycle);
-    }
-
-    public void dropInventory(Level level, BlockPos pos) {
-        for (ItemStack stack : this.inventory) {
-            if (!stack.isEmpty()) {
-                ItemEntity itemEntity = new ItemEntity(
-                        level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack.copy()
-                );
-                level.addFreshEntity(itemEntity);
-            }
-        }
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        ContainerHelper.saveAllItems(output, this.inventory);
+        output.putInt("RepairTime", this.repairTime);
+        output.putInt("FuelTime", this.fuelTime);
+        output.putInt("MaxFuelTime", this.maxFuelTime);
+        output.putInt("CurrentDurabilityPerCycle", this.currentDurabilityPerCycle);
     }
 
     @Override

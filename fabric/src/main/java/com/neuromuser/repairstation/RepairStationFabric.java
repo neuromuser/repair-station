@@ -8,11 +8,15 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+
+import java.util.Set;
 
 public class RepairStationFabric implements ModInitializer {
     @Override
@@ -22,19 +26,23 @@ public class RepairStationFabric implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
                 FabricConfigNetworking.sendToClient(handler.getPlayer(), server.isDedicatedServer()));
 
-        Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
+        Registry.register(BuiltInRegistries.BLOCK, Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
                 RepairStation.REPAIR_STATION_BLOCK);
-        Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
-                new BlockItem(RepairStation.REPAIR_STATION_BLOCK, new Item.Properties()));
+        Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
+                new BlockItem(RepairStation.REPAIR_STATION_BLOCK, new Item.Properties()
+                        .useBlockDescriptionPrefix()
+                        .setId(ResourceKey.create(Registries.ITEM,
+                                Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station")))));
         RepairStation.REPAIR_STATION_BLOCK_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
-                BlockEntityType.Builder.of(
-                        RepairStationBlockEntity::new, RepairStation.REPAIR_STATION_BLOCK).build(null));
+                Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
+                new BlockEntityType<>(RepairStationBlockEntity::new, Set.of(RepairStation.REPAIR_STATION_BLOCK)));
         RepairStationBlockEntity.BLOCK_ENTITY_TYPE = RepairStation.REPAIR_STATION_BLOCK_ENTITY;
-        Registry.register(BuiltInRegistries.MENU, ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
+        Registry.register(BuiltInRegistries.MENU, Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station"),
                 RepairStation.REPAIR_STATION_SCREEN_HANDLER);
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(content ->
                 content.accept(RepairStation.REPAIR_STATION_BLOCK));
+
+        RepairStationGameTests.registerTestFunctions();
     }
 }

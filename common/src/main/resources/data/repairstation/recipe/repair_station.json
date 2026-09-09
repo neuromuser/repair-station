@@ -6,15 +6,9 @@
     "PPP"
   ],
   "key": {
-    "F": {
-      "item": "minecraft:flint"
-    },
-    "s": {
-      "item": "minecraft:stone_slab"
-    },
-    "P": {
-      "tag": "minecraft:planks"
-    }
+    "F": "minecraft:flint",
+    "s": "minecraft:stone_slab",
+    "P": "#minecraft:planks"
   },
   "result": {
     "id": "repairstation:repair_station"

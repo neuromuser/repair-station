@@ -163,17 +163,16 @@ public class RepairStationConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawString(this.font, Component.literal("Repair Station Config"), 14, 16, 0xFFFFFF);
+        guiGraphics.drawString(this.font, Component.literal("Repair Station Config"), 14, 16, 0xFFFFFFFF);
 
         if (serverControlled) {
             guiGraphics.drawCenteredString(this.font,
                     Component.literal("This server controls the fuel configuration."),
-                    this.width / 2, this.height / 2 - 20, 0xAAAAAA);
+                    this.width / 2, this.height / 2 - 20, 0xFFAAAAAA);
             guiGraphics.drawCenteredString(this.font,
                     Component.literal("Edit config/repair-station.json on the server."),
-                    this.width / 2, this.height / 2 - 8, 0xAAAAAA);
+                    this.width / 2, this.height / 2 - 8, 0xFFAAAAAA);
             return;
         }
 
@@ -185,10 +184,10 @@ public class RepairStationConfigScreen extends Screen {
         }
         guiGraphics.disableScissor();
 
-        guiGraphics.drawString(this.font, Component.literal("Add New Fuel"), COL_ITEM_X, this.height - 52, 0xAAAAAA);
+        guiGraphics.drawString(this.font, Component.literal("Add New Fuel"), COL_ITEM_X, this.height - 52, 0xFFAAAAAA);
         if (newFuelField != null) {
             guiGraphics.drawString(this.font, Component.literal("Save writes to config/repair-station.json"),
-                    COL_ITEM_X, this.height - 16, 0x888888);
+                    COL_ITEM_X, this.height - 16, 0xFF888888);
         }
     }
 
@@ -224,9 +223,10 @@ public class RepairStationConfigScreen extends Screen {
         }
 
         @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             enableRowScissor(guiGraphics);
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+            this.renderDefaultSprite(guiGraphics);
+            this.renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
             guiGraphics.disableScissor();
         }
 
@@ -274,9 +274,9 @@ public class RepairStationConfigScreen extends Screen {
         }
 
         void renderLabels(GuiGraphics guiGraphics, int y) {
-            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Item/Tag ID"), COL_ITEM_X, y, 0xAAAAAA);
-            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Duration (s)"), COL_DUR_X, y, 0xAAAAAA);
-            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Dura/5s"), COL_PROD_X, y, 0xAAAAAA);
+            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Item/Tag ID"), COL_ITEM_X, y, 0xFFAAAAAA);
+            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Duration (s)"), COL_DUR_X, y, 0xFFAAAAAA);
+            guiGraphics.drawString(RepairStationConfigScreen.this.font, Component.literal("Dura/5s"), COL_PROD_X, y, 0xFFAAAAAA);
         }
     }
 }

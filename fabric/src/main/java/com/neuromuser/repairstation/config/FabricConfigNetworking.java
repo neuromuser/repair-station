@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 public class FabricConfigNetworking {
@@ -20,7 +20,7 @@ public class FabricConfigNetworking {
 
     public record ConfigSyncPayload(String json, boolean dedicatedServer) implements CustomPacketPayload {
         public static final Type<ConfigSyncPayload> TYPE =
-                new Type<>(ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "config_sync"));
+                new Type<>(Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "config_sync"));
         public static final StreamCodec<FriendlyByteBuf, ConfigSyncPayload> STREAM_CODEC = StreamCodec.composite(
                 net.minecraft.network.codec.ByteBufCodecs.STRING_UTF8, ConfigSyncPayload::json,
                 net.minecraft.network.codec.ByteBufCodecs.BOOL, ConfigSyncPayload::dedicatedServer,

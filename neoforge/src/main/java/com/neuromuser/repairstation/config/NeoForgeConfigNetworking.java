@@ -4,7 +4,7 @@ import com.neuromuser.repairstation.RepairStation;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -30,12 +30,12 @@ public class NeoForgeConfigNetworking {
 
     public static void sendToPlayer(ServerPlayer player) {
         PacketDistributor.sendToPlayer(player,
-                new ConfigSyncPayload(ConfigManager.toJson(), player.getServer().isDedicatedServer()));
+                new ConfigSyncPayload(ConfigManager.toJson(), player.level().getServer().isDedicatedServer()));
     }
 
     public record ConfigSyncPayload(String json, boolean dedicatedServer) implements CustomPacketPayload {
         public static final Type<ConfigSyncPayload> TYPE =
-                new Type<>(ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "config_sync"));
+                new Type<>(Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "config_sync"));
         public static final StreamCodec<FriendlyByteBuf, ConfigSyncPayload> STREAM_CODEC = CustomPacketPayload.codec(
                 ConfigSyncPayload::encode,
                 ConfigSyncPayload::decode

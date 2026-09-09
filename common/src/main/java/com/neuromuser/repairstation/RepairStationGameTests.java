@@ -1,8 +1,12 @@
 package com.neuromuser.repairstation;
 
-import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -15,16 +19,32 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class RepairStationGameTests {
 
-    @GameTest(template = "empty", timeoutTicks = 100)
+    public static void registerTestFunctions() {
+        registerTestFunction("repair_station_is_in_functional_blocks_tab",
+                RepairStationGameTests::repairStationIsInFunctionalBlocksTab);
+        registerTestFunction("repair_station_recipe_crafts_the_block",
+                RepairStationGameTests::repairStationRecipeCraftsTheBlock);
+    }
+
+    private static void registerTestFunction(String name, Consumer<GameTestHelper> function) {
+        Registry.register(BuiltInRegistries.TEST_FUNCTION,
+                ResourceKey.create(Registries.TEST_FUNCTION,
+                        Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, name)),
+                function);
+    }
+
     public static void repairStationIsInFunctionalBlocksTab(GameTestHelper helper) {
         Item station = RepairStation.REPAIR_STATION_BLOCK.asItem();
         if (station == Items.AIR) {
@@ -56,7 +76,6 @@ public class RepairStationGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = "empty", timeoutTicks = 100)
     public static void repairStationRecipeCraftsTheBlock(GameTestHelper helper) {
         Item station = RepairStation.REPAIR_STATION_BLOCK.asItem();
         if (station == Items.AIR) {
@@ -64,35 +83,38 @@ public class RepairStationGameTests {
             return;
         }
 
-        ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station");
+        Identifier recipeId = Identifier.fromNamespaceAndPath(RepairStation.MOD_ID, "repair_station");
+        ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, recipeId);
         RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
-        Optional<RecipeHolder<CraftingRecipe>> found = recipes.getAllRecipesFor(RecipeType.CRAFTING).stream()
-                .filter(e -> e.id().equals(recipeId))
-                .findFirst();
-        if (found.isEmpty()) {
+        Optional<RecipeHolder<?>> found = recipes.byKey(recipeKey);
+        if (found.isEmpty() || !(found.get().value() instanceof CraftingRecipe recipe)) {
             helper.fail("recipe repairstation:repair_station is not registered");
             return;
         }
 
-        RecipeHolder<CraftingRecipe> holder = found.get();
-        CraftingRecipe recipe = holder.value();
-        ItemStack anticipated = recipe.getResultItem(helper.getLevel().registryAccess());
-        if (!anticipated.is(station)) {
-            helper.fail("recipe repairstation:repair_station resolves to " + anticipated + " instead of the repair station");
-            return;
-        }
-
         TransientCraftingContainer container = new TransientCraftingContainer(dummyMenu(), 3, 3);
-        List<Ingredient> ingredients = recipe.getIngredients();
-        for (int i = 0; i < container.getContainerSize() && i < ingredients.size(); i++) {
-            ItemStack[] variants = ingredients.get(i).getItems();
-            container.setItem(i, variants.length == 0 ? ItemStack.EMPTY : variants[0].copy());
+        PlacementInfo placementInfo = recipe.placementInfo();
+        List<Ingredient> ingredients = placementInfo.ingredients();
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            int ingredientIndex = placementInfo.slotsToIngredientIndex().size() > i
+                    ? placementInfo.slotsToIngredientIndex().getInt(i)
+                    : -1;
+            if (ingredientIndex < 0) {
+                container.setItem(i, ItemStack.EMPTY);
+                continue;
+            }
+            ItemStack variant = ingredients.get(ingredientIndex).items()
+                    .findFirst()
+                    .map(Holder::value)
+                    .map(Item::getDefaultInstance)
+                    .orElse(ItemStack.EMPTY);
+            container.setItem(i, variant);
         }
 
         CraftingInput input = CraftingInput.of(3, 3, container.getItems());
 
         Optional<RecipeHolder<CraftingRecipe>> match = recipes.getRecipeFor(RecipeType.CRAFTING, input, helper.getLevel());
-        if (match.isEmpty()) {
+        if (match.isEmpty() || !match.get().id().equals(recipeKey)) {
             helper.fail("the reconstructed pattern does not match recipe repairstation:repair_station");
             return;
         }
